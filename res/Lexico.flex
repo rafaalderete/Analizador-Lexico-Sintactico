@@ -53,6 +53,7 @@ ESPCHAR = [\n\t]
 "enddeclare" { lexeme = yytext(); lexemeLine = yyline; return ENDDECLARE;}
 "integer" { lexeme = yytext(); lexemeLine = yyline; return TIPO;}
 "float" { lexeme = yytext(); lexemeLine = yyline; return TIPO;}
+"while" { lexeme = yytext(); lexemeLine = yyline; return WHILE;}
 "if" { lexeme = yytext(); lexemeLine = yyline; return IF;}
 "else" { lexeme = yytext(); lexemeLine = yyline; return ELSE;}
 "print" { lexeme = yytext(); lexemeLine = yyline; return PRINT;}
