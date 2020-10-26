@@ -131,8 +131,8 @@ public class Main extends JFrame {
 		Lexico lexico = new Lexico(readerTextAreaFile);
 		String output = "";
 		try {
-			Token token = lexico.yylex();
-		    BufferedWriter writer = new BufferedWriter(new FileWriter("res/ts.txt", false));
+		    BufferedWriter writer = new BufferedWriter(new FileWriter("ts.txt", false));
+		    Token token;
 			while ((token = lexico.yylex())!= null) {
 				switch (token) {
 				case ESPACIO:

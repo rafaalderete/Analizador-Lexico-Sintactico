@@ -1,0 +1,46 @@
+</ prueba.txt />
+
+</ Recuerden modificar de este archivo todo componente lexico que definieron
+diferente en su lenguaje, como operador de asignación, apertura y cierre de
+ciclos y condicionales, operadores lógicos, nombres de tipos, etc. />
+
+
+DECLARE
+[suma, contador, d1] := [FLOAT, INT, FLOAT]
+[actual, contar, palabra] := [FLOAT, FLOAT, STRING]
+[var] := [INT]
+ENDDECLARE
+
+
+BEGIN.PROGRAM
+
+PRINT  "Prueba.txt Analizador Lexico!"
+
+contador = 0
+suma = 7.5
+contar = 18.22
+
+while (contador <= 92) {
+	contador = contador + 1
+	actual = (contador / 0.342) + (contador * (contar + 4.67))
+	suma = suma + actual
+	}
+PRINT  "La variable suma es de tipo float"
+
+
+If ((actual > 2) and (actual <> 0)){
+	PRINT  "actual es mayor que 2 y distinto de cero"
+	palabra = "es mayor"
+}
+Else{
+	PRINT “no es mayor que 2”
+}
+
+
+actual = 56.3 * MAP(+ 2,[(suma+6)*2,actual,85/5,(contar-3)/contador])
+d1 = MAP(* 8.3,[(suma+6)*2,actual,(contar-3)/contador])
+
+</ --------------</----------------/>---------------- />
+
+
+END.PROGRAM
