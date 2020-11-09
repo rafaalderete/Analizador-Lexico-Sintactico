@@ -1,0 +1,13 @@
+<funcion> ::= MAP(<op_logico> <cte>,[<lista_expresiones>])
+<op_logico> ::= + | *
+<cte> ::= <entero> | <float>
+<entero> ::= <numero>
+<float> ::= <numero>,<numero>
+<numero> ::= <digito> / <numero> <digito>
+<digito> -> 0 | 1 | 2 | .. | 9
+<lista_expresiones> ::= <lista_expresiones>,<expresion> | <expresion>
+<expresion> ::= <expresion>+<termino> | <expresion>-<termino> | <termino>
+<termino> ::= <termino>*<factor> | <termino>/<factor> | <factor>
+<factor> ::= <id> | <cte> | (<expresion>)
+<id> ::= <letra> | <id><letra> | <id><digito>
+<letra> ::= a | b | c | .. | z
