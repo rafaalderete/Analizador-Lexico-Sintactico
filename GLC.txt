@@ -10,19 +10,21 @@
 <seccion_programa> ::= BEGIN<sentencias>END
 <sentencias> ::= <sentencias>SALTO_LINEA<sentencia> | <sentencia>
 <sentencia> ::= PRINT CONST_STR
-<sentencia> ::= ID OP_ASIGN <constante> | ID OP_ASIGN ID | ID OP_ASIGN <expresion>
-<sentencia> ::= <seccion_if>
+<sentencia> ::= ID OP_ASIGN <expresion>
+<sentencia> ::= <seccion_if> | <seccion_while>
 <seccion_while> ::= WHILE P_A<condicion>P_C L_A<sentencias>L_C
 <seccion_if> ::= IF P_A<condicion>P_C L_A<sentencias>L_C 
 <seccion_if> ::= IF P_A<condicion>P_C L_A<sentencias>L_C ELSE L_A<sentencias>L_C
-<condicion> ::= <expresion><op_logico><expresion>
-
+<condicion> ::= <comparacion>
+<condicion> ::= <condicion><op_logico_bool><comparacion> | OP_NOT <condicion>
+<comparacion> ::= <expresion><op_logico><expresion>
+<op_logico_bool> ::= OP_AND | OP_OR 
+<op_logico> ::= OP_MENOR | OP_MAYOR | OP_IGUAL | OP_MAYOR_IGUAL | OP_MENOR_IGUAL | OP_DIST
 <lista_expresiones> ::= <lista_expresiones>COMA<expresion> | <expresion>
 <expresion> ::= <expresion>OP_SUM<termino> | <expresion>OP_REST<termino> | <termino>
 <termino> ::= <termino>OP_MULT<factor> | <termino>OP_DIV<factor> | <factor>
-<factor> ::= ID | <constante_num> | <func_map> | <condicion> | (<expresion>)
+<factor> ::= ID | <constante_num> | <func_map> | (<expresion>)
 <func_map> ::= MAP P_A <op_map><constante_num> COMA C_A<lista_expresiones>C_C P_C
 <op_map> ::= OP_SUM | OP_MULT
 <constante> ::= CONST_STR | CONST_INT | CONST_FLOAT
 <constante_num> ::= CONST_INT | CONST_FLOAT
-<op_logico> ::= OP_NOT | OP_AND | OP_OR | OP_MENOR | OP_MAYOR | OP_IGUAL | OP_MAYOR_IGUAL | OP_MENOR_IGUAL | OP_DIST
