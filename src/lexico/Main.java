@@ -13,6 +13,7 @@ import java.io.FileWriter;
 import java.io.Reader;
 import java.io.StringReader;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 import javax.swing.BorderFactory;
@@ -28,6 +29,9 @@ import javax.swing.border.EmptyBorder;
 @SuppressWarnings("serial")
 public class Main extends JFrame {
 
+	private static final List<Token> NON_UNIQUE_TOKEN = new ArrayList<Token>(
+			Arrays.asList(Token.ID, Token.CONST_INT, Token.CONST_REAL, Token.CONST_STR));
+	private static final Long STRING_LENGHT = 2147483647L;
 	private JPanel contentPane;
 	private JTextArea textAreaFile;
 	private JTextArea textAreaCompile;
@@ -71,6 +75,7 @@ public class Main extends JFrame {
 		contentPane.add(scrollTextAreaFile);
 
 		textAreaCompile = new JTextArea();
+		textAreaCompile.setEditable(false);
 		JScrollPane scrollTextAreaCompile = new JScrollPane(textAreaCompile, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
 				JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
 		scrollTextAreaCompile.setBounds(564, 42, 420, 688);
@@ -124,33 +129,54 @@ public class Main extends JFrame {
 
 	}
 
-	private void compile() {	
+	private void compile() {
 		tempToken = new ArrayList<String>();
 		Reader inputString = new StringReader(textAreaFile.getText());
 		BufferedReader readerTextAreaFile = new BufferedReader(inputString);
 		Lexico lexico = new Lexico(readerTextAreaFile);
 		String output = "";
+		Boolean error = false;
 		try {
-		    BufferedWriter writer = new BufferedWriter(new FileWriter("ts.txt", false));
-		    Token token;
-			while ((token = lexico.yylex())!= null) {
+			BufferedWriter writer = new BufferedWriter(new FileWriter("ts.txt", false));
+			writer.append("NOMBRE;TOKEN;TIPO;VALOR;LONG\n");
+			Token token;
+			while ((token = lexico.yylex()) != null && !error) {
 				switch (token) {
 				case ESPACIO:
 				case ESPCHAR:
-				case COMMENT:{
+				case COMMENT: {
 					break;
 				}
 				case ERROR: {
-					output += "Caracter no permitido <" + lexico.lexeme + "> en la linea " + lexico.lexemeLine + "\n";
+					output += "Error, caracter no permitido <" + lexico.lexeme + "> en la linea " + lexico.lexemeLine
+							+ "\n";
+					error = true;
 					break;
 				}
+				case ERROR_COMMENT: {
+					output += "Error, comentario mal formado en la linea " + lexico.lexemeLine + "\n";
+					error = true;
+					break;
+				}
+				case CONST_INT:
+				case CONST_REAL:
+				case CONST_STR:
+					error = exceedsLenght(token, lexico.lexeme);
+					if (error) {
+						output += "Error, longitud no permitida, lexema <" + lexico.lexeme + "> en la linea "
+								+ lexico.lexemeLine + "\n";
+						break;
+					}
 				default:
 					output += "Token " + token + ", lexema <" + lexico.lexeme + "> en la linea " + lexico.lexemeLine
 							+ "\n";
-					if (!existToken(lexico.lexeme)) {
-						writer.append(lexico.lexeme+";"+token+";;"+lexico.lexeme+";"+lexico.lexeme.length()+"\n");
-						tempToken.add(lexico.lexeme);
-					}	
+					if (NON_UNIQUE_TOKEN.contains(token)) {
+						if (!existToken(lexico.lexeme)) {
+							writer.append(lexico.lexeme + ";" + token + ";;" + lexico.lexeme + ";"
+									+ lexico.lexeme.length() + "\n");
+							tempToken.add(lexico.lexeme);
+						}
+					}
 				}
 			}
 			writer.close();
@@ -161,7 +187,7 @@ public class Main extends JFrame {
 
 		textAreaCompile.setText(output);
 	}
-	
+
 	private Boolean existToken(String lexeme) {
 		for (String word : tempToken) {
 			if (lexeme.equals(word))
@@ -169,5 +195,29 @@ public class Main extends JFrame {
 		}
 		return false;
 	}
-	
+
+	@SuppressWarnings("incomplete-switch")
+	private Boolean exceedsLenght(Token token, String value) {
+		Boolean exceeds = false;
+		switch (token) {
+		case CONST_STR:
+			if (value.length() > STRING_LENGHT)
+				exceeds = true;
+			break;
+		case CONST_INT:
+			try {
+				Integer.parseInt(value);
+			} catch (Exception e) {
+				exceeds = true;
+			}
+			break;
+		case CONST_REAL:
+			Float constFloat = Float.parseFloat(value);
+			if (constFloat.isInfinite())
+				exceeds = true;
+			break;
+		}
+		return exceeds;
+	}
+
 }

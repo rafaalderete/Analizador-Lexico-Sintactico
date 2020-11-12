@@ -16,24 +16,11 @@ COMA = [","]
 PUNTO = ["."]
 ESPACIO  = [\ ]
 COM = [\"]
-COMMENT = "</"({LETRA}|{DIGITO}|{ESPACIO}|{CHAR}|{PUNTO}|{COMA})*"/>"
 CHAR = ["!"|"¡"|"?"|"¿"]
 CONST_STR = {COM}({LETRA}|{DIGITO}|{ESPACIO}|{CHAR}|{PUNTO}|{COMA})*{COM}
 CONST_REAL = {DIGITO}+"."{DIGITO}+
 CONST_INT = {DIGITO}+
 ID = {LETRA}({LETRA}|{DIGITO}|_)*
-OP_COMPARACION = ["<"|"="|">"|"<="|">="|"><"]
-OP_SUM = ["+"]
-OP_RES = ["-"]
-OP_MULT = ["*"]
-OP_DIV = ["/"]
-OP_LOG = ["and"|"or"|"not"]
-C_A = ["["]
-C_C = ["]"]
-P_A = ["("]
-P_C = [")"]
-L_A = ["{"]
-L_C = ["}"]
 ESPCHAR = [\n\t]
 
 
@@ -51,33 +38,34 @@ ESPCHAR = [\n\t]
 "end.program" { lexeme = yytext(); lexemeLine = yyline; return END;}
 "declare" { lexeme = yytext(); lexemeLine = yyline; return DECLARE;}
 "enddeclare" { lexeme = yytext(); lexemeLine = yyline; return ENDDECLARE;}
-"integer" { lexeme = yytext(); lexemeLine = yyline; return TIPO;}
-"float" { lexeme = yytext(); lexemeLine = yyline; return TIPO;}
+"int" { lexeme = yytext(); lexemeLine = yyline; return TIPO_INT;}
+"float" { lexeme = yytext(); lexemeLine = yyline; return TIPO_FLOAT;}
+"string" { lexeme = yytext(); lexemeLine = yyline; return TIPO_STRING;}
 "while" { lexeme = yytext(); lexemeLine = yyline; return WHILE;}
 "if" { lexeme = yytext(); lexemeLine = yyline; return IF;}
 "else" { lexeme = yytext(); lexemeLine = yyline; return ELSE;}
 "print" { lexeme = yytext(); lexemeLine = yyline; return PRINT;}
-"<" { lexeme = yytext(); lexemeLine = yyline; return OP_COMPARACION;}
-">" { lexeme = yytext(); lexemeLine = yyline; return OP_COMPARACION;}
-"<=" { lexeme = yytext(); lexemeLine = yyline; return OP_COMPARACION;}
-">=" { lexeme = yytext(); lexemeLine = yyline; return OP_COMPARACION;}
-"<>" { lexeme = yytext(); lexemeLine = yyline; return OP_COMPARACION;}
+"<" { lexeme = yytext(); lexemeLine = yyline; return OP_MENOR;}
+">" { lexeme = yytext(); lexemeLine = yyline; return OP_MAYOR;}
+"<=" { lexeme = yytext(); lexemeLine = yyline; return OP_MENOR_IGUAL;}
+">=" { lexeme = yytext(); lexemeLine = yyline; return OP_MAYOR_IGUAL;}
+"<>" { lexeme = yytext(); lexemeLine = yyline; return OP_DIST;}
 "=" { lexeme = yytext(); lexemeLine = yyline; return OP_ASIGN;}
-":=" { lexeme = yytext(); lexemeLine = yyline; return OP_ASIGN;}
-"and" { lexeme = yytext(); lexemeLine = yyline; return OP_LOG;}
-"or" { lexeme = yytext(); lexemeLine = yyline; return OP_LOG;}
-"not" { lexeme = yytext(); lexemeLine = yyline; return OP_LOG;}
-{OP_SUM}  { lexeme = yytext(); lexemeLine = yyline; return OP_SUM;}
-{OP_RES}  { lexeme = yytext(); lexemeLine = yyline; return OP_RES;}
-{OP_MULT}  { lexeme = yytext(); lexemeLine = yyline; return OP_MULT;}
-{OP_DIV}  { lexeme = yytext(); lexemeLine = yyline; return OP_DIV;}
-{C_A} { lexeme = yytext(); lexemeLine = yyline; return C_A;}
-{C_C} { lexeme = yytext(); lexemeLine = yyline; return P_C;}
-{P_A} { lexeme = yytext(); lexemeLine = yyline; return P_A;}
-{P_C} { lexeme = yytext(); lexemeLine = yyline; return P_C;}
-{L_A} { lexeme = yytext(); lexemeLine = yyline; return L_A;}
-{L_C} { lexeme = yytext(); lexemeLine = yyline; return L_C;}
-{OP_LOG} { lexeme = yytext(); lexemeLine = yyline; return OP_LOG;}
+":=" { lexeme = yytext(); lexemeLine = yyline; return OP_ASIGN_DECLR;}
+"and" { lexeme = yytext(); lexemeLine = yyline; return OP_AND;}
+"or" { lexeme = yytext(); lexemeLine = yyline; return OP_OR;}
+"not" { lexeme = yytext(); lexemeLine = yyline; return OP_NOT;}
+"+"  { lexeme = yytext(); lexemeLine = yyline; return OP_SUM;}
+"-" { lexeme = yytext(); lexemeLine = yyline; return OP_RES;}
+"*"  { lexeme = yytext(); lexemeLine = yyline; return OP_MULT;}
+"/"  { lexeme = yytext(); lexemeLine = yyline; return OP_DIV;}
+"[" { lexeme = yytext(); lexemeLine = yyline; return C_A;}
+"]" { lexeme = yytext(); lexemeLine = yyline; return P_C;}
+"(" { lexeme = yytext(); lexemeLine = yyline; return P_A;}
+")" { lexeme = yytext(); lexemeLine = yyline; return P_C;}
+"{" { lexeme = yytext(); lexemeLine = yyline; return L_A;}
+"}" { lexeme = yytext(); lexemeLine = yyline; return L_C;}
+"map" { lexeme = yytext(); lexemeLine = yyline; return MAP;}
 {ID} { lexeme = yytext(); lexemeLine = yyline; return ID;}
 {CONST_INT} { lexeme = yytext(); lexemeLine = yyline; return CONST_INT;}
 {CONST_STR} { lexeme = yytext(); lexemeLine = yyline; return CONST_STR;}
@@ -85,6 +73,8 @@ ESPCHAR = [\n\t]
 {COMA} { lexeme = yytext(); lexemeLine = yyline; return COMA;}
 {ESPCHAR} { return ESPCHAR; }
 {ESPACIO} { return ESPACIO; }
+[<][/][^/]*[/]+([^/>][^/]*[/]+)*[>]   { return COMMENT; }
+[<][/] { lexemeLine = yyline; return ERROR_COMMENT;}   
 
 }
 

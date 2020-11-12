@@ -33,7 +33,7 @@ If ((actual > 2) and (actual <> 0)){
 	palabra = "es mayor"
 }
 Else{
-	PRINT “no es mayor que 2”
+	PRINT "no es mayor que 2"
 }
 
 
