@@ -16,12 +16,11 @@ COMA = [","]
 PUNTO = ["."]
 ESPACIO  = [\ ]
 COM = [\"]
-CHAR = ["!"|"¡"|"?"|"¿"]
-CONST_STR = {COM}({LETRA}|{DIGITO}|{ESPACIO}|{CHAR}|{PUNTO}|{COMA})*{COM}
+ESP_CHAR = ["!"|"¡"|"?"|"¿"]
+CONST_STR = {COM}({LETRA}|{DIGITO}|{ESPACIO}|{ESP_CHAR}|{PUNTO}|{COMA})*{COM}
 CONST_REAL = {DIGITO}+"."{DIGITO}+
 CONST_INT = {DIGITO}+
 ID = {LETRA}({LETRA}|{DIGITO}|_)*
-ESPCHAR = [\n\t]
 
 
 %{
@@ -50,6 +49,7 @@ ESPCHAR = [\n\t]
 "<=" { lexeme = yytext(); lexemeLine = yyline; return OP_MENOR_IGUAL;}
 ">=" { lexeme = yytext(); lexemeLine = yyline; return OP_MAYOR_IGUAL;}
 "<>" { lexeme = yytext(); lexemeLine = yyline; return OP_DIST;}
+"==" { lexeme = yytext(); lexemeLine = yyline; return OP_IGUAL;}
 "=" { lexeme = yytext(); lexemeLine = yyline; return OP_ASIGN;}
 ":=" { lexeme = yytext(); lexemeLine = yyline; return OP_ASIGN_DECLR;}
 "and" { lexeme = yytext(); lexemeLine = yyline; return OP_AND;}
@@ -71,8 +71,9 @@ ESPCHAR = [\n\t]
 {CONST_STR} { lexeme = yytext(); lexemeLine = yyline; return CONST_STR;}
 {CONST_REAL} { lexeme = yytext(); lexemeLine = yyline; return CONST_REAL;}
 {COMA} { lexeme = yytext(); lexemeLine = yyline; return COMA;}
-{ESPCHAR} { return ESPCHAR; }
 {ESPACIO} { return ESPACIO; }
+"\n" { return SALTO_LINEA; }
+"\t" { return TAB; }
 [<][/][^/]*[/]+([^/>][^/]*[/]+)*[>]   { return COMMENT; }
 [<][/] { lexemeLine = yyline; return ERROR_COMMENT;}   
 

@@ -1,1 +1,2 @@
-sdfdsf;ID;;sdfdsf;6
+NOMBRE;TOKEN;TIPO;VALOR;LONG
+asd;ID;;asd;3

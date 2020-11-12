@@ -143,7 +143,9 @@ public class Main extends JFrame {
 			while ((token = lexico.yylex()) != null && !error) {
 				switch (token) {
 				case ESPACIO:
-				case ESPCHAR:
+				case ESP_CHAR:
+				case SALTO_LINEA:
+				case TAB:
 				case COMMENT: {
 					break;
 				}
