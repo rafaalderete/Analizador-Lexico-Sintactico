@@ -40,7 +40,7 @@ Else{
 actual = 56.3 * MAP(+ 2,[(suma+6)*2,actual,85/5,(contar-3)/contador])
 d1 = MAP(* 8.3,[(suma+6)*2,actual,(contar-3)/contador])
 
-</ --------------</----------------/>---------------- />
+</ --------------</----------------/>
 
 
 END.PROGRAM

@@ -1,14 +1,16 @@
-import java_cup.runtime.Symbol;
-import static lexico.Token.*;
+package lexico;
+import java_cup.runtime.*;
+import sintactico.sym;
 
 %%
 
 
-/*%cupsym Simbolo*/
+%cup
+%public
 %class Lexico
-%type Token
-%line
 %ignorecase
+%line
+%column
 
 DIGITO = [0-9]
 LETRA =	[a-zA-Z]
@@ -23,60 +25,55 @@ CONST_INT = {DIGITO}+
 ID = {LETRA}({LETRA}|{DIGITO}|_)*
 
 
-%{
-    public String lexeme;
-    public int lexemeLine;
-%}
-
-
 %%
 
 <YYINITIAL> {
 
-"begin.program" { lexeme = yytext(); lexemeLine = yyline; return BEGIN;}
-"end.program" { lexeme = yytext(); lexemeLine = yyline; return END;}
-"declare" { lexeme = yytext(); lexemeLine = yyline; return DECLARE;}
-"enddeclare" { lexeme = yytext(); lexemeLine = yyline; return ENDDECLARE;}
-"int" { lexeme = yytext(); lexemeLine = yyline; return TIPO_INT;}
-"float" { lexeme = yytext(); lexemeLine = yyline; return TIPO_FLOAT;}
-"string" { lexeme = yytext(); lexemeLine = yyline; return TIPO_STRING;}
-"while" { lexeme = yytext(); lexemeLine = yyline; return WHILE;}
-"if" { lexeme = yytext(); lexemeLine = yyline; return IF;}
-"else" { lexeme = yytext(); lexemeLine = yyline; return ELSE;}
-"print" { lexeme = yytext(); lexemeLine = yyline; return PRINT;}
-"<" { lexeme = yytext(); lexemeLine = yyline; return OP_MENOR;}
-">" { lexeme = yytext(); lexemeLine = yyline; return OP_MAYOR;}
-"<=" { lexeme = yytext(); lexemeLine = yyline; return OP_MENOR_IGUAL;}
-">=" { lexeme = yytext(); lexemeLine = yyline; return OP_MAYOR_IGUAL;}
-"<>" { lexeme = yytext(); lexemeLine = yyline; return OP_DIST;}
-"==" { lexeme = yytext(); lexemeLine = yyline; return OP_IGUAL;}
-"=" { lexeme = yytext(); lexemeLine = yyline; return OP_ASIGN;}
-":=" { lexeme = yytext(); lexemeLine = yyline; return OP_ASIGN_DECLR;}
-"and" { lexeme = yytext(); lexemeLine = yyline; return OP_AND;}
-"or" { lexeme = yytext(); lexemeLine = yyline; return OP_OR;}
-"not" { lexeme = yytext(); lexemeLine = yyline; return OP_NOT;}
-"+"  { lexeme = yytext(); lexemeLine = yyline; return OP_SUM;}
-"-" { lexeme = yytext(); lexemeLine = yyline; return OP_RES;}
-"*"  { lexeme = yytext(); lexemeLine = yyline; return OP_MULT;}
-"/"  { lexeme = yytext(); lexemeLine = yyline; return OP_DIV;}
-"[" { lexeme = yytext(); lexemeLine = yyline; return C_A;}
-"]" { lexeme = yytext(); lexemeLine = yyline; return P_C;}
-"(" { lexeme = yytext(); lexemeLine = yyline; return P_A;}
-")" { lexeme = yytext(); lexemeLine = yyline; return P_C;}
-"{" { lexeme = yytext(); lexemeLine = yyline; return L_A;}
-"}" { lexeme = yytext(); lexemeLine = yyline; return L_C;}
-"map" { lexeme = yytext(); lexemeLine = yyline; return MAP;}
-{ID} { lexeme = yytext(); lexemeLine = yyline; return ID;}
-{CONST_INT} { lexeme = yytext(); lexemeLine = yyline; return CONST_INT;}
-{CONST_STR} { lexeme = yytext(); lexemeLine = yyline; return CONST_STR;}
-{CONST_REAL} { lexeme = yytext(); lexemeLine = yyline; return CONST_REAL;}
-{COMA} { lexeme = yytext(); lexemeLine = yyline; return COMA;}
-{ESPACIO} { return ESPACIO; }
-"\n" { return SALTO_LINEA; }
-"\t" { return TAB; }
-[<][/][^/]*[/]+([^/>][^/]*[/]+)*[>]   { return COMMENT; }
-[<][/] { lexemeLine = yyline; return ERROR_COMMENT;}   
+"begin.program" { return new Symbol(sym.BEGIN,yycolumn,yyline,yytext()); }
+"end.program" { return new Symbol(sym.END,yycolumn,yyline,yytext()); }
+"declare" { return new Symbol(sym.DECLARE,yycolumn,yyline,yytext()); }
+"enddeclare" { return new Symbol(sym.ENDDECLARE,yycolumn,yyline,yytext()); }
+"int" { return new Symbol(sym.TIPO_INT,yycolumn,yyline,yytext()); }
+"float" { return new Symbol(sym.TIPO_FLOAT,yycolumn,yyline,yytext()); }
+"string" { return new Symbol(sym.TIPO_STRING,yycolumn,yyline,yytext()); }
+"while" { return new Symbol(sym.WHILE,yycolumn,yyline,yytext()); }
+"if" { return new Symbol(sym.IF,yycolumn,yyline,yytext()); }
+"else" { return new Symbol(sym.ELSE,yycolumn,yyline,yytext()); }
+"print" { return new Symbol(sym.PRINT,yycolumn,yyline,yytext()); }
+"<" { return new Symbol(sym.OP_MENOR,yycolumn,yyline,yytext()); }
+">" { return new Symbol(sym.OP_MAYOR,yycolumn,yyline,yytext()); }
+"<=" { return new Symbol(sym.OP_MENOR_IGUAL,yycolumn,yyline,yytext()); }
+">=" { return new Symbol(sym.OP_MAYOR_IGUAL,yycolumn,yyline,yytext()); }
+"<>" { return new Symbol(sym.OP_DIST,yycolumn,yyline,yytext()); }
+"==" { return new Symbol(sym.OP_IGUAL,yycolumn,yyline,yytext()); }
+"=" { return new Symbol(sym.ASIGN,yycolumn,yyline,yytext()); }
+":=" { return new Symbol(sym.ASIGN_DECLR,yytext()); }
+"and" { return new Symbol(sym.OP_AND,yycolumn,yyline,yytext()); }
+"or" { return new Symbol(sym.OP_OR,yycolumn,yyline,yytext()); }
+"not" { return new Symbol(sym.OP_NOT,yycolumn,yyline,yytext()); }
+"+"  { return new Symbol(sym.OP_SUM,yycolumn,yyline,yytext()); }
+"-" { return new Symbol(sym.OP_RES,yycolumn,yyline,yytext()); }
+"*"  { return new Symbol(sym.OP_MULT,yycolumn,yyline,yytext()); }
+"/"  { return new Symbol(sym.OP_DIV,yycolumn,yyline,yytext()); }
+"[" { return new Symbol(sym.C_A,yycolumn,yyline,yytext()); }
+"]" { return new Symbol(sym.C_C,yycolumn,yyline,yytext()); }
+"(" { return new Symbol(sym.P_A,yycolumn,yyline,yytext()); }
+")" { return new Symbol(sym.P_C,yycolumn,yyline,yytext()); }
+"{" { return new Symbol(sym.L_A,yycolumn,yyline,yytext()); }
+"}" { return new Symbol(sym.L_C,yycolumn,yyline,yytext()); }
+"map" { return new Symbol(sym.MAP,yycolumn,yyline,yytext()); }
+{ID} { return new Symbol(sym.ID,yycolumn,yyline,yytext()); }
+{CONST_INT} { return new Symbol(sym.CONST_INT,yycolumn,yyline,yytext()); }
+{CONST_STR} { return new Symbol(sym.CONST_STRING,yycolumn,yyline,yytext()); }
+{CONST_REAL} { return new Symbol(sym.CONST_REAL,yycolumn,yyline,yytext()); }
+{COMA} { return new Symbol(sym.COMA,yycolumn,yyline,yytext()); }
+{ESPACIO} { }
+"\n" { }
+"\t" { }
+[<][/][^/]*[/]+([^/>][^/]*[/]+)*[>]   { }
+[<][/] { return new Symbol(sym.COMMENT_ERROR,yycolumn,yyline,yytext()); }
 
 }
 
-[^]		{ lexeme = yytext(); lexemeLine = yyline; return ERROR;}
+[^]	{ return new Symbol(sym.ERROR,yycolumn,yyline,yytext()); }
+<<EOF>> {return new Symbol(sym.EOF);}

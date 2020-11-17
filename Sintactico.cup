@@ -1,0 +1,128 @@
+package sintactico;
+import java_cup.runtime.*;
+import java.util.ArrayList;
+import java.util.List;
+
+
+parser code
+{:
+    public String output = "";
+
+    private List<String> tempToken = new ArrayList<String>();
+    public List<String> toAddToken = new ArrayList<String>();
+
+    private Boolean existToken (String value) {
+		for (String word : tempToken) {
+			if (value.equals(word))
+				return true;
+		}
+		return false;
+	}
+
+    private void toAddTable (String value, String token) {
+        if (!existToken(value)){
+            toAddToken.add(value+";"+token+";"+"null");
+            tempToken.add(value);
+        }    
+    }
+
+    private void toAddTableId (String values, String tipos) {
+        String[] toAddValues = values.split(",");
+        String[] toAddTipos = tipos.split(",");
+        for (int i = 0; i < toAddValues.length; i++) {
+            if (!existToken(toAddValues[i])){
+                toAddToken.add(toAddValues[i] + ";" + "ID" + ";" + toAddTipos[i]);
+                tempToken.add(toAddValues[i]);
+            }   
+		}  
+    }
+
+    private void addRegla (String regla) {
+        output += regla + "\n";
+    }
+    /**Metodo al que se llama automaticamente ante algun error sintactico.*/
+    public void syntax_error(Symbol s){
+        addRegla("Error en la linea " + s.right + " columna " + (s.left+1) + ", valor no reconocido " + s.value );
+    }
+
+    public void unrecovered_syntax_error(Symbol s){
+        addRegla("Error en la linea " + s.right + " columna " + (s.left+1) + ", valor no reconocido " + s.value );
+    }
+
+:}
+
+action code
+{:
+:}
+
+
+/*Declaracion de Terminales */
+terminal BEGIN, END, DECLARE, ENDDECLARE, TIPO_INT, TIPO_FLOAT, TIPO_STRING, WHILE, IF, ELSE, PRINT, OP_MENOR, OP_MAYOR, OP_MENOR_IGUAL, OP_MAYOR_IGUAL, OP_DIST, OP_IGUAL, ASIGN,
+    ASIGN_DECLR, OP_AND, OP_OR, OP_NOT, OP_SUM, OP_RES, OP_MULT, OP_DIV, P_A, P_C, C_A, C_C, L_A, L_C, MAP, ID, CONST_INT, CONST_REAL, CONST_STRING, COMA;
+
+/*Declaracion de No Terminales*/
+non terminal programa_completo, seccion_declaraciones, seccion_programa, declaraciones, declaracion, lista_id, lista_tipo, tipo, sentencias, sentencia,
+    seccion_if, seccion_while, condicion, comparacion, op_logico_bool, op_logico, lista_expresiones, expresion, termino, factor, func_map,
+    constante_num, op_map;
+
+
+start with programa_completo;
+
+
+programa_completo ::= seccion_declaraciones seccion_programa {: addRegla("[Regla 0]  Compila correctamente llegando al simbolo start"); :};
+
+seccion_declaraciones ::= DECLARE declaraciones ENDDECLARE {: addRegla("[Regla 1] Seccion declaraciones"); :}; 
+declaraciones ::= declaraciones:decs declaracion:dec {: addRegla("[Regla 2] Declaraciones valor= " + decs + dec); RESULT = decs.toString() + dec.toString(); :}
+    | declaracion:dec {: addRegla("[Regla 3] Declaracion valor= " + dec); RESULT = dec; :};
+declaracion ::= C_A:ca1 lista_id:lid C_C:cc1 ASIGN_DECLR:as C_A:ca2 lista_tipo:ltipo C_C:cc2 {: addRegla("[Regla 4] Formato declaracion valor= " + ca1 + lid + cc1 + as + ca2 + ltipo + cc2); toAddTableId(lid.toString(), ltipo.toString()); RESULT = ca1.toString() + lid.toString() + cc1.toString() + as.toString() + ca2.toString() + ltipo.toString() + cc2.toString(); :};
+lista_id ::= lista_id:lid COMA:com ID:id {: addRegla("[Regla 5] Formato listado ID valor= " + lid + com + id); RESULT = lid.toString() + com.toString() + id.toString(); :}
+    | ID:id {: addRegla("[Regla 6] Terminal ID valor= " + id); RESULT = id; :};
+lista_tipo ::= lista_tipo:lt COMA:com tipo:t {: addRegla("[Regla 7] Formato listado tipos valor= " + lt + com + t); RESULT = lt.toString() + com.toString() + t.toString(); :}
+    | tipo:t {: addRegla("[Regla 8] Tipo valor= " + t); RESULT = t; :};
+tipo ::= TIPO_INT:tint {: addRegla("[Regla 9] Terminal TIPO_INT valor= " + tint); RESULT = tint; :}
+    | TIPO_FLOAT:tfloat {: addRegla("[Regla 10] Terminal TIPO_FLOAT valor= " + tfloat); RESULT = tfloat; :}
+    | TIPO_STRING:tstring {: addRegla("[Regla 11] Terminal TIPO_STRING valor= " + tstring); RESULT = tstring; :};
+
+seccion_programa ::= BEGIN:beg sentencias:sent END:end {: addRegla("[Regla 12] Seccion programa"); :};
+sentencias ::= sentencias:sents sentencia:sent {: addRegla("[Regla 13] Sentencias valor= " + sents + sent); RESULT = sents.toString() + sent.toString(); :}
+    | sentencia:sent {: addRegla("[Regla 14] Sentencia valor= " + sent); RESULT = sent.toString(); :};
+sentencia ::= PRINT:pr CONST_STRING:cstring {: addRegla("[Regla 15] Sentencia PRINT valor= " + pr + cstring); toAddTable(cstring.toString(), "CONST_STRING"); RESULT = pr.toString() + cstring.toString(); :};
+sentencia ::= ID:id ASIGN:as expresion:ex {: addRegla("[Regla 16] Sentencia asignacion expresion valor= " + id + as + ex); RESULT = id.toString() + as.toString() + ex.toString(); :}
+    | ID:id ASIGN:as CONST_STRING:cstring {: addRegla("[Regla 17] Sentencia asignacion constante string valor= " + id + as + cstring); toAddTable(cstring.toString(), "CONST_STRING"); RESULT = id.toString() + as.toString() + cstring.toString(); :};
+sentencia ::= seccion_if:sif {: addRegla("[Regla 18] IF valor= " + sif); RESULT = sif; :}
+    | seccion_while:swhi {: addRegla("[Regla 19] WHILE valor= " +swhi); RESULT = swhi; :};
+seccion_while ::= WHILE:whi P_A:pa condicion:cond P_C:pc L_A:la sentencias:sents L_C:lc {: addRegla("[Regla 20] Formato WHILE valor= " + whi + pa + cond + pc + la + sents + lc); RESULT = whi.toString() + pa.toString() + cond.toString() + pc.toString() + la.toString() + sents.toString() + lc.toString(); :};
+seccion_if ::= IF:sif P_A:pa condicion:cond P_C:pc L_A:la sentencias:sents L_C:lc {: addRegla("[Regla 21] Formato IF valor= " + sif + pa + cond + pc + la + sents + lc); RESULT = sif.toString() + pa.toString() + cond.toString() + pc.toString() + la.toString() + sents.toString() + lc.toString(); :};
+seccion_if ::= IF:sif P_A:pa condicion:cond P_C:pc L_A:la1 sentencias:sents1 L_C:lc1 ELSE:els L_A:la2 sentencias:sents2 L_C:lc2 {: addRegla("[Regla 22] Formato IF-ELSE valor= " + sif + pa + cond + pc + la1 + sents1 + lc1 + els + la2 + sents2 + lc2); RESULT = sif.toString() + pa.toString() + cond.toString() + pc.toString() + la1.toString() + sents1.toString() + lc1.toString() + els.toString() + la2.toString() + sents2.toString() + lc2.toString(); :};
+condicion ::= comparacion:comp {: addRegla("[Regla 23] Comparación valor= " + comp); RESULT = comp; :};
+condicion ::= comparacion:compl op_logico_bool:logb comparacion:compr  {: addRegla("[Regla 24] Formato condicion AND-OR valor= " + compl + logb + compr); RESULT = compl.toString() + logb.toString() + compr.toString(); :}
+    | OP_NOT:not comparacion:comp {: addRegla("[Regla 25] Formato condicion NOT valor= " + not + comp); RESULT = not.toString() + comp.toString(); :};
+comparacion ::= expresion:exl op_logico:log expresion:exr {: addRegla("[Regla 26] Formato comparacion valor= " + exl + log + exr ); RESULT = exl.toString() + log.toString() + exr.toString(); :}
+    | P_A:pa condicion:cond P_C:pc {: addRegla("[Regla 27] Parentesis condicion valor= " + pa + cond + pc); RESULT = pa.toString() + cond.toString() + pc.toString(); :};
+op_logico_bool ::= OP_AND:and {: addRegla("[Regla 28] Terminal OP_AND valor= "+ and); RESULT = and; :}
+    | OP_OR:or {: addRegla("[Regla 29] Terminal OP_OR valor= " + or); RESULT = or; :};
+op_logico ::= OP_MENOR:men {: addRegla("[Regla 30] Terminal OP_MENOR valor= " + men); RESULT = men; :}
+    | OP_MAYOR:may {: addRegla("[Regla 31] Terminal OP_MAYOR valor= " + may); RESULT = may; :}
+    | OP_IGUAL:igual {: addRegla("[Regla 32] Terminal OP_IGUAL valor= " + igual); RESULT = igual; :}
+    | OP_MAYOR_IGUAL:maigual {: addRegla("[Regla 33] Terminal OP_MAYOR_IGUAL valor= " + maigual); RESULT = maigual; :}
+    | OP_MENOR_IGUAL:meigual {: addRegla("[Regla 34] Terminal OP_MENOR_IGUAL valor= " + meigual); RESULT = meigual; :}
+    | OP_DIST:dist {: addRegla("[Regla 35] Terminal OP_MAYOR_DIST valor= " + dist); RESULT = dist; :};
+lista_expresiones ::= lista_expresiones:list COMA:com expresion:ex {: addRegla("[Regla 36] Formato lista expresiones valor= " + list + com + ex); RESULT = list.toString() + com.toString() + ex.toString(); :}
+    | expresion:ex {: addRegla("[Regla 37] Expresion valor=" + ex); RESULT = ex; :};
+expresion ::= expresion:ex OP_SUM:sum termino:t {: addRegla("[Regla 38] Formato expresion OP_SUM valor= " + ex + sum + t); RESULT = ex.toString() + sum.toString() + t.toString(); :}
+    | expresion:ex OP_RES:res termino:t {: addRegla("[Regla 39] Formato expresion OP_RES valor= " + ex + res + t); RESULT = ex.toString() + res.toString() + t.toString(); :}
+    | termino:t {: addRegla("[Regla 40] Termino valor= "+ t); RESULT = t; :};
+termino ::= termino:t OP_MULT:mult factor:f  {: addRegla("[Regla 41] Formato termino OP_MULT valor= " + t + mult + f); RESULT = t.toString() + mult.toString() + f.toString();  :}
+    | termino:t OP_DIV:div factor:f {: addRegla("[Regla 42] Formato termino OP_DIV valor= " + t + div + f); RESULT = t.toString() + div.toString() + f.toString(); :}
+    | factor:f {: addRegla("[Regla 43] Factor valor=" + f); RESULT = f; :};
+factor ::= ID:id {: addRegla("[Regla 44] Terminal ID valor= " + id); RESULT = id; :}
+    | constante_num:num {: addRegla("[Regla 45] Constante numerica valor= " + num); RESULT = num; :}
+    | func_map:fmap {: addRegla("[Regla 46] Funcion MAP valor= " + fmap); RESULT = fmap; :}
+    | P_A:pa expresion:ex P_C:pc {: addRegla("[Regla 47] Parentesis expresion valor= " + pa + ex + pc); RESULT = pa.toString() + ex.toString() + pc.toString();  :};
+func_map ::= MAP:map P_A:pa op_map:op constante_num:num COMA:com C_A:ca lista_expresiones:list C_C:cc P_C:pc {: addRegla("[Regla 48] Formato MAP valor= " + map + pa + op + num + com + ca + list + cc + pc); RESULT = map.toString() + pa.toString() + op.toString() + num.toString() + com.toString() + ca.toString() + list.toString() + cc.toString() + pc.toString(); :};
+op_map ::= OP_SUM:sum {: addRegla("[Regla 49] Terminal OP_SUM valor= " + sum); RESULT = sum; :}
+    | OP_MULT:mult {: addRegla("[Regla 50] Terminal OP_MULT valor= " + mult); RESULT = mult; :};
+constante_num ::= CONST_INT:ent {: addRegla("[Regla 51] Terminal CONST_INT valor= " + ent); toAddTable(ent.toString(), "CONST_INT"); RESULT = ent; :}
+    | CONST_REAL:real {: addRegla("[Regla 52] Terminal CONST_REAL, valor= " + real); toAddTable(real.toString(), "CONST_REAL"); RESULT = real; :};
+
+
